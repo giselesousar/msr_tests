@@ -3,6 +3,8 @@ import os
 from pathlib import Path
 import plotly.graph_objects as go
 import lizard
+import json
+from pydriller import Repository
 
 # Immprime n linhas da lista fornecida
 def print_n(n, list_to_print):
@@ -158,4 +160,48 @@ def generate_list_cc_files(list_locs_files):
         elemento = (cc, filename_with_path)
         list_cc_files.append(elemento)  
     return list_cc_files
-        
+
+# Dicionario com o LoC de cada arquivo
+def create_dicionario_loc_filename(lista):
+    dicionario = {}
+    for item in lista:
+        loc = item[0]
+        name = item[1].split('/')[-1]
+        dicionario[name] = int(loc)
+    return dicionario
+
+# Dicionario com a frequencia de commits de cada arquivo
+def create_dicionario_fc_filename(dicionario_fc):
+    dicionario = {}
+    for k, v in dicionario_fc.items():
+      dicionario[k] = len(v)
+    return dicionario
+
+def concat_str(str1, str2):
+    temp = str1 + ',' + str2
+    return temp
+
+def convert_list_to_str(lista):
+    temp = ''
+    if len(lista) > 0:
+        temp = ','.join( str(v) for v in lista)
+    return temp
+
+def convert_modifield_list_to_str(lista):
+    list_aux = []
+    for each in lista:
+        list_aux.append(each.filename)
+    str = convert_list_to_str(list_aux)
+    return str
+
+def convert_dictionary_to_str(dictionary):
+    temp = ''
+    if len(dictionary) > 0:
+        temp = str(json.dumps(dictionary))
+    return temp
+
+def list_commits_between_tags(from_tag, to_tag, my_repository):
+    list_temp = []
+    for commit in Repository(my_repository, from_tag=from_tag, to_tag=to_tag).traverse_commits():
+        list_temp.append(commit)
+    return list_temp
